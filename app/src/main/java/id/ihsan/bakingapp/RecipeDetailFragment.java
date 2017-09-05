@@ -1,69 +1,87 @@
 package id.ihsan.bakingapp;
 
-import android.app.Activity;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import id.ihsan.bakingapp.dummy.DummyContent;
+import java.util.ArrayList;
+import java.util.List;
+
+import id.ihsan.bakingapp.adapters.RecipeDetailAdapter;
+import id.ihsan.bakingapp.models.Ingredient;
+import id.ihsan.bakingapp.models.Recipe;
+import id.ihsan.bakingapp.widgets.UpdateBakingService;
+
+import static id.ihsan.bakingapp.RecipeActivity.SELECTED_RECIPES;
 
 /**
- * A fragment representing a single Recipe detail screen.
- * This fragment is either contained in a {@link RecipeListActivity}
- * in two-pane mode (on tablets) or a {@link RecipeDetailActivity}
- * on handsets.
+ * @author Ihsan Helmi Faisal <ihsan.helmi@ovo.id>
+ * @since 2017.04.09
  */
 public class RecipeDetailFragment extends Fragment {
-    /**
-     * The fragment argument representing the item ID that this fragment
-     * represents.
-     */
-    public static final String ARG_ITEM_ID = "item_id";
 
-    /**
-     * The dummy content this fragment is presenting.
-     */
-    private DummyContent.DummyItem mItem;
-
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
-    public RecipeDetailFragment() {
-    }
+    private List<Recipe> recipe;
+    private String recipeName;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
-            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+        RecyclerView recyclerView;
+        TextView textView;
 
-            Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
-            if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.content);
-            }
+        recipe = new ArrayList<>();
+
+        if (savedInstanceState != null) {
+            recipe = savedInstanceState.getParcelableArrayList(SELECTED_RECIPES);
+
+        } else {
+            recipe = getArguments().getParcelableArrayList(SELECTED_RECIPES);
         }
-    }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.recipe_detail, container, false);
+        List<Ingredient> ingredients = recipe.get(0).getIngredients();
+        recipeName = recipe.get(0).getName();
 
-        // Show the dummy content as text in a TextView.
-        if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.recipe_detail)).setText(mItem.details);
+        View rootView = inflater.inflate(R.layout.recipe_detail_fragment_body_part, container, false);
+        textView = (TextView) rootView.findViewById(R.id.recipe_detail_text);
+
+        ArrayList<String> recipeIngredientsForWidgets = new ArrayList<>();
+
+        for (Ingredient a : ingredients) {
+            textView.append("\u2022 " + a.getIngredient() + "\n");
+            textView.append("\t\t\t Quantity: " + a.getQuantity() + "\n");
+            textView.append("\t\t\t Measure: " + a.getMeasure() + "\n\n");
+
+            recipeIngredientsForWidgets.add(a.getIngredient() + "\n" +
+                    "Quantity: " + a.getQuantity() + "\n" +
+                    "Measure: " + a.getMeasure() + "\n");
         }
+
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.recipe_detail_recycler);
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+
+        RecipeDetailAdapter mRecipeDetailAdapter = new RecipeDetailAdapter((RecipeDetailAdapter.ListItemClickListener) getActivity());
+        recyclerView.setAdapter(mRecipeDetailAdapter);
+        mRecipeDetailAdapter.setMasterRecipeData(recipe, getContext());
+
+        //update widget
+        UpdateBakingService.startBakingService(getContext(), recipeIngredientsForWidgets);
 
         return rootView;
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle currentState) {
+        super.onSaveInstanceState(currentState);
+        currentState.putParcelableArrayList(SELECTED_RECIPES, (ArrayList<? extends Parcelable>) recipe);
+        currentState.putString("Title", recipeName);
+    }
 }
+
+

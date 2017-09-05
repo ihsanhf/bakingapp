@@ -3,6 +3,7 @@ package id.ihsan.bakingapp;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -118,8 +119,6 @@ public class RecipeStepDetailFragment extends Fragment {
         }
 
         if (!videoURL.isEmpty()) {
-            initializePlayer(Uri.parse(steps.get(selectedIndex).getVideoURL()));
-
             if (rootView.findViewWithTag("sw600dp-land-recipe_step_detail") != null) {
                 getActivity().findViewById(R.id.fragment_container2).setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
                 simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIXED_WIDTH);
@@ -197,9 +196,14 @@ public class RecipeStepDetailFragment extends Fragment {
         return (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE);
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
+    public void initializeExoplayer() {
+        String videoURL = steps.get(selectedIndex).getVideoURL();
+        if (!videoURL.isEmpty()) {
+            initializePlayer(Uri.parse(steps.get(selectedIndex).getVideoURL()));
+        }
+    }
+
+    public void releaseExoplayer() {
         if (player != null) {
             player.stop();
             player.release();
@@ -207,31 +211,34 @@ public class RecipeStepDetailFragment extends Fragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        if (player != null) {
-            player.stop();
-            player.release();
-            player = null;
+    public void onStart() {
+        super.onStart();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            initializeExoplayer();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            initializeExoplayer();
         }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (player != null) {
-            player.stop();
-            player.release();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            releaseExoplayer();
         }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (player != null) {
-            player.stop();
-            player.release();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            releaseExoplayer();
         }
     }
-
 }

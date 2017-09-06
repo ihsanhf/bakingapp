@@ -82,7 +82,7 @@ public class RecipeActivity extends AppCompatActivity implements RecipeAdapter.L
         if (listRecipe.getTag() != null && listRecipe.getTag().equals("phone-port")) {
             column = 1;
         }
-        recipesAdapter = new RecipeAdapter(RecipeActivity.this);
+        recipesAdapter = new RecipeAdapter(this, RecipeActivity.this);
         listRecipe.setAdapter(recipesAdapter);
 
         GridLayoutManager mLayoutManager = new GridLayoutManager(RecipeActivity.this, column);
@@ -126,7 +126,7 @@ public class RecipeActivity extends AppCompatActivity implements RecipeAdapter.L
                         Bundle recipesBundle = new Bundle();
                         recipesBundle.putParcelableArrayList(ALL_RECIPES, (ArrayList<? extends Parcelable>) response);
 
-                        recipesAdapter.setRecipeData(response, RecipeActivity.this);
+                        recipesAdapter.setRecipeData(response);
                     }
                 });
     }

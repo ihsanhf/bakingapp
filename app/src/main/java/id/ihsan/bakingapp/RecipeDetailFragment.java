@@ -52,10 +52,11 @@ public class RecipeDetailFragment extends Fragment {
 
         ArrayList<String> recipeIngredientsForWidgets = new ArrayList<>();
 
+        int index = 0;
         for (Ingredient a : ingredients) {
-            textView.append("\u2022 " + a.getIngredient() + "\n");
-            textView.append("\t\t\t Quantity: " + a.getQuantity() + "\n");
-            textView.append("\t\t\t Measure: " + a.getMeasure() + "\n\n");
+            textView.append("- " + a.getIngredient() + "\n");
+            textView.append("  Quantity: " + a.getQuantity() + "\n");
+            textView.append("  Measure: " + a.getMeasure() + "\n\n");
 
             recipeIngredientsForWidgets.add(a.getIngredient() + "\n" +
                     "Quantity: " + a.getQuantity() + "\n" +

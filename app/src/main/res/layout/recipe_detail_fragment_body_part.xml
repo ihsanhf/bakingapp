@@ -4,12 +4,12 @@
     android:layout_height="wrap_content"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="8dp">
 
     <ScrollView
         style="@android:style/Widget.Holo.ScrollView"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="wrap_content"
         android:clipToPadding="false"
         android:fillViewport="false"
         android:isScrollContainer="false"
@@ -21,7 +21,6 @@
             android:id="@+id/recipe_detail_text"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:padding="15dp"
             android:textColor="#E0E0E0"
             android:textSize="16sp" />
     </ScrollView>
@@ -29,8 +28,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recipe_detail_recycler"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="15dp" />
+        android:layout_height="wrap_content" />
 </LinearLayout>
 
 

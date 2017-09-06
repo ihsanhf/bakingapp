@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
@@ -60,6 +61,7 @@ public class RecipeStepDetailFragment extends Fragment {
     ArrayList<Recipe> recipe;
     String recipeName;
 
+    private long position;
     private ListItemClickListener itemClickListener;
 
     public interface ListItemClickListener {
@@ -80,7 +82,7 @@ public class RecipeStepDetailFragment extends Fragment {
             steps = savedInstanceState.getParcelableArrayList(SELECTED_STEPS);
             selectedIndex = savedInstanceState.getInt(SELECTED_INDEX);
             recipeName = savedInstanceState.getString("Title");
-
+            position = savedInstanceState.getLong("position");
 
         } else {
             steps = getArguments().getParcelableArrayList(SELECTED_STEPS);
@@ -111,13 +113,6 @@ public class RecipeStepDetailFragment extends Fragment {
             ((RecipeDetailActivity) getActivity()).getSupportActionBar().setTitle(recipeName);
         }
 
-        String imageUrl = steps.get(selectedIndex).getThumbnailURL();
-        if (imageUrl != "") {
-            Uri builtUri = Uri.parse(imageUrl).buildUpon().build();
-            ImageView thumbImage = (ImageView) rootView.findViewById(R.id.thumbImage);
-            Picasso.with(getContext()).load(builtUri).into(thumbImage);
-        }
-
         if (!videoURL.isEmpty()) {
             if (rootView.findViewWithTag("sw600dp-land-recipe_step_detail") != null) {
                 getActivity().findViewById(R.id.fragment_container2).setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
@@ -129,6 +124,11 @@ public class RecipeStepDetailFragment extends Fragment {
             player = null;
             simpleExoPlayerView.setForeground(ContextCompat.getDrawable(getContext(), R.drawable.ic_visibility_off));
             simpleExoPlayerView.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
+
+            String imageUrl = steps.get(selectedIndex).getThumbnailURL();
+            Uri builtUri = Uri.parse(imageUrl).buildUpon().build();
+            ImageView thumbImage = (ImageView) rootView.findViewById(R.id.thumbImage);
+            Picasso.with(getContext()).load(builtUri).into(thumbImage);
         }
 
         Button mPrevStep = (Button) rootView.findViewById(R.id.previousStep);
@@ -181,6 +181,7 @@ public class RecipeStepDetailFragment extends Fragment {
             MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(getContext(), userAgent), new DefaultExtractorsFactory(), null, null);
             player.prepare(mediaSource);
             player.setPlayWhenReady(true);
+            if (position != C.TIME_UNSET) player.seekTo(position);
         }
     }
 
@@ -190,6 +191,7 @@ public class RecipeStepDetailFragment extends Fragment {
         currentState.putParcelableArrayList(SELECTED_STEPS, steps);
         currentState.putInt(SELECTED_INDEX, selectedIndex);
         currentState.putString("Title", recipeName);
+        currentState.putLong("position", position);
     }
 
     public boolean isInLandscapeMode(Context context) {
@@ -207,6 +209,7 @@ public class RecipeStepDetailFragment extends Fragment {
         if (player != null) {
             player.stop();
             player.release();
+            player = null;
         }
     }
 
@@ -237,6 +240,10 @@ public class RecipeStepDetailFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        if (player != null) {
+            position = player.getCurrentPosition();
+        }
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             releaseExoplayer();
         }

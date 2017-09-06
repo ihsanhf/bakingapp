@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import id.ihsan.bakingapp.R;
@@ -22,8 +23,8 @@ import id.ihsan.bakingapp.models.Recipe;
  */
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecyclerViewHolder> {
 
-    private List<Recipe> recipes;
     private Context mContext;
+    private List<Recipe> recipes;
 
     private ListItemClickListener listener;
 
@@ -31,14 +32,14 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecyclerVi
         void onListItemClick(Recipe clickedItemIndex);
     }
 
-    public RecipeAdapter(ListItemClickListener listener) {
+    public RecipeAdapter(Context context, ListItemClickListener listener) {
+        this.mContext = context;
         this.listener = listener;
     }
 
-
-    public void setRecipeData(List<Recipe> recipesIn, Context context) {
-        recipes = recipesIn;
-        mContext = context;
+    public void setRecipeData(List<Recipe> recipesIn) {
+        this.recipes = new ArrayList<>();
+        this.recipes.addAll(recipesIn);
         notifyDataSetChanged();
     }
 
@@ -53,11 +54,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecyclerVi
         holder.textRecyclerView.setText(recipes.get(position).getName());
         String imageUrl = recipes.get(position).getImage();
 
-        if (imageUrl.equals("")) {
+        if (!imageUrl.isEmpty()) {
             Uri builtUri = Uri.parse(imageUrl).buildUpon().build();
             Picasso.with(mContext).load(builtUri).into(holder.imageRecyclerView);
         }
-
     }
 
     @Override

@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -34,7 +34,6 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +102,7 @@ public class RecipeStepDetailFragment extends Fragment {
         textView.setText(steps.get(selectedIndex).getDescription());
         textView.setVisibility(View.VISIBLE);
 
+        ImageView thumbImage = (ImageView) rootView.findViewById(R.id.thumbImage);
         simpleExoPlayerView = (SimpleExoPlayerView) rootView.findViewById(R.id.playerView);
         simpleExoPlayerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
 
@@ -120,15 +120,14 @@ public class RecipeStepDetailFragment extends Fragment {
             } else if (isInLandscapeMode(getContext())) {
                 textView.setVisibility(View.GONE);
             }
+            thumbImage.setVisibility(View.GONE);
         } else {
+            simpleExoPlayerView.setVisibility(View.GONE);
             player = null;
-            simpleExoPlayerView.setForeground(ContextCompat.getDrawable(getContext(), R.drawable.ic_visibility_off));
-            simpleExoPlayerView.setLayoutParams(new LinearLayout.LayoutParams(300, 300));
 
             String imageUrl = steps.get(selectedIndex).getThumbnailURL();
             Uri builtUri = Uri.parse(imageUrl).buildUpon().build();
-            ImageView thumbImage = (ImageView) rootView.findViewById(R.id.thumbImage);
-            Picasso.with(getContext()).load(builtUri).into(thumbImage);
+            Glide.with(getActivity()).load(imageUrl).crossFade().into(thumbImage);
         }
 
         Button mPrevStep = (Button) rootView.findViewById(R.id.previousStep);

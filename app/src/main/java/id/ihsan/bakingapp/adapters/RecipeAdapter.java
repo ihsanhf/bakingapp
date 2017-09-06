@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +56,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecyclerVi
 
         if (!imageUrl.isEmpty()) {
             Uri builtUri = Uri.parse(imageUrl).buildUpon().build();
-            Picasso.with(mContext).load(builtUri).into(holder.imageRecyclerView);
+            Glide.with(mContext).load(builtUri).crossFade().into(holder.imageRecyclerView);
         }
     }
 
